@@ -8,7 +8,7 @@ import plotly.express as px
 app = Flask(__name__)
 
 # Load data
-data = pd.read_csv('Dataset/crypto_data_coinmarketcap.csv')
+data = pd.read_csv('D:\TubsAMY\Modul Kuliah\SEMESTER 7\Sistem Penunjang Keputusan\Tugas SPK\Tugas1\Sistem_Penunjang_Keputusan-Decision_Support_System\Top 100 Crypto\Dataset\Dataset\crypto_data_coinmarketcap.csv')
 
 # Select criteria for analysis
 criteria = ['current_price', 'price_change_percentage_24h', 'market_cap', 'total_volume']

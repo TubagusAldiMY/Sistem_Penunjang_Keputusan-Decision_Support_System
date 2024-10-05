@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cryptocurrency SAW Analysis</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; }
+        h1 { color: #333; }
+        form { margin-bottom: 20px; }
+        label { display: inline-block; width: 200px; }
+        input { width: 50px; }
+        #results { margin-top: 20px; }
+        table { border-collapse: collapse; width: 100%; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+    </style>
+</head>
+<body>
+    <h1>Cryptocurrency SAW Analysis</h1>
+    <form id="weightForm">
+        {% for criterion in criteria %}
+        <div>
+            <label for="{{ criterion }}">Weight for {{ criterion }}:</label>
+            <input type="number" id="{{ criterion }}" name="{{ criterion }}" min="0" max="1" step="0.1" value="0.25">
+        </div>
+        {% endfor %}
+        <button type="submit">Analyze</button>
+    </form>
+    <div id="results"></div>
+    <div id="graph"></div>
+
+    <script>
+    $(document).ready(function() {
+        $('#weightForm').submit(function(e) {
+            e.preventDefault();
+            $.ajax({
+                url: '/analyze',
+                method: 'POST',
+                data: $(this).serialize(),
+                success: function(response) {
+                    let resultsHtml = '<h2>Top 10 Cryptocurrencies</h2><table><tr><th>Name</th><th>SAW Score</th>';
+                    {% for criterion in criteria %}
+                    resultsHtml += '<th>{{ criterion }}</th>';
+                    {% endfor %}
+                    resultsHtml += '</tr>';
+                    
+                    response.top_10.forEach(function(crypto) {
+                        resultsHtml += `<tr><td>${crypto.name}</td><td>${crypto.saw_score.toFixed(4)}</td>`;
+                        {% for criterion in criteria %}
+                        resultsHtml += `<td>${crypto.{{ criterion }}.toFixed(4)}</td>`;
+                        {% endfor %}
+                        resultsHtml += '</tr>';
+                    });
+                    resultsHtml += '</table>';
+                    $('#results').html(resultsHtml);
+
+                    Plotly.newPlot('graph', JSON.parse(response.graph));
+                }
+            });
+        });
+    });
+    </script>
+</body>
+</html>
